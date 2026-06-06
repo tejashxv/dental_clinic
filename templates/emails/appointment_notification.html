@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Appointment Request</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #f1f5f9;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f766e, #0d9488);
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #ffffff;
+      font-size: 24px;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .header p {
+      color: #ccfbf1;
+      font-size: 14px;
+      margin: 8px 0 0 0;
+    }
+    .content {
+      padding: 32px 24px;
+    }
+    .greeting {
+      font-size: 18px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .intro {
+      font-size: 15px;
+      color: #475569;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .details-card {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+    .details-row {
+      display: flex;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+    .details-row:last-child {
+      margin-bottom: 0;
+    }
+    .details-label {
+      width: 120px;
+      font-weight: 600;
+      color: #64748b;
+      flex-shrink: 0;
+    }
+    .details-value {
+      color: #0f172a;
+      word-break: break-word;
+    }
+    .message-box {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      font-style: italic;
+      color: #475569;
+    }
+    .actions-header {
+      font-size: 14px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    @media (min-width: 480px) {
+      .button-group {
+        flex-direction: row;
+      }
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background-color 0.2s, transform 0.1s;
+      text-align: center;
+      flex: 1;
+      margin: 6px;
+    }
+    .btn-phone {
+      background-color: #0ea5e9;
+      color: #ffffff;
+    }
+    .btn-phone:hover {
+      background-color: #0284c7;
+    }
+    .btn-whatsapp {
+      background-color: #22c55e;
+      color: #ffffff;
+    }
+    .btn-whatsapp:hover {
+      background-color: #16a34a;
+    }
+    .btn-email {
+      background-color: #64748b;
+      color: #ffffff;
+    }
+    .btn-email:hover {
+      background-color: #475569;
+    }
+    .footer {
+      background-color: #f8fafc;
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .footer p {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>New Appointment Booking</h1>
+      <p>Vaishnavi Dental Clinic Portal</p>
+    </div>
+    <div class="content">
+      <p class="greeting">Hello Doctor,</p>
+      <p class="intro">A patient has requested a new appointment through the clinic website. Here are the details:</p>
+      
+      <div class="details-card">
+        <div class="details-row">
+          <div class="details-label">Patient Name:</div>
+          <div class="details-value" style="font-weight: 600;">{{ data.name }}</div>
+        </div>
+        <div class="details-row">
+          <div class="details-label">Date:</div>
+          <div class="details-value">{{ data.date }}</div>
+        </div>
+        <div class="details-row">
+          <div class="details-label">Time Slot:</div>
+          <div class="details-value">{{ data.time }}</div>
+        </div>
+        <div class="details-row">
+          <div class="details-label">Phone:</div>
+          <div class="details-value">{{ data.phone }}</div>
+        </div>
+        <div class="details-row">
+          <div class="details-label">Email:</div>
+          <div class="details-value">{{ data.email }}</div>
+        </div>
+        {% if data.message %}
+        <div class="message-box">
+          <strong>Message:</strong><br>
+          "{{ data.message }}"
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="actions-header">Quick Actions</div>
+      <div class="button-group">
+        <a href="tel:{{ data.phone }}" class="btn btn-phone">📞 Call Patient</a>
+        {% if data.whatsapp_phone %}
+        <a href="https://wa.me/{{ data.whatsapp_phone }}" class="btn btn-whatsapp">💬 WhatsApp</a>
+        {% endif %}
+        <a href="mailto:{{ data.email }}" class="btn btn-email">✉️ Email Patient</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>This is an automated system notification from your clinic's web portal.</p>
+    </div>
+  </div>
+</body>
+</html>
