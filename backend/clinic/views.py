@@ -1,17 +1,12 @@
 import json
-import socket
 from base64 import b64encode
 from urllib import parse, request as urlrequest
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse
 
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-
-from .tasks import send_appointment_email
-
 
 def home(request):
     return render(request, 'home.html')
@@ -36,52 +31,15 @@ def book_appointment(request):
     if missing:
         return JsonResponse({'ok': False, 'error': 'Please complete all required fields.'}, status=400)
 
-    email_queued = _queue_doctor_email(data)
     whatsapp_message = _build_whatsapp_message(data)
     whatsapp_sent = _send_twilio_whatsapp(whatsapp_message)
     whatsapp_url = _build_whatsapp_url(whatsapp_message)
 
     return JsonResponse({
         'ok': True,
-        'email_queued': email_queued,
         'whatsapp_sent': whatsapp_sent,
         'whatsapp_url': whatsapp_url,
     })
-
-
-def _queue_doctor_email(data):
-    if not settings.CELERY_TASK_ALWAYS_EAGER and not _celery_broker_available():
-        return False
-
-    try:
-        send_appointment_email.delay(data)
-        return True
-    except Exception:
-        return False
-
-
-def _celery_broker_available():
-    broker_url = urlparse(settings.CELERY_BROKER_URL)
-    if broker_url.scheme in {'memory', 'filesystem'}:
-        return True
-    if not broker_url.hostname:
-        return False
-
-    default_ports = {
-        'redis': 6379,
-        'rediss': 6379,
-        'amqp': 5672,
-        'amqps': 5671,
-    }
-    port = broker_url.port or default_ports.get(broker_url.scheme)
-    if not port:
-        return True
-
-    try:
-        with socket.create_connection((broker_url.hostname, port), timeout=0.75):
-            return True
-    except OSError:
-        return False
 
 
 def _build_whatsapp_message(data):

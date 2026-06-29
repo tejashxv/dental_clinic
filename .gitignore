@@ -1,5 +1,9 @@
 .env
+backend/.env
 env/
+backend/env/
 db.sqlite3
+backend/db.sqlite3
 __pycache__/
+**/__pycache__/
 *.py[cod]
