@@ -334,7 +334,16 @@
       align-items: center;
     }
 
-    .hero-content { color: #fff; }
+    /* min-width: 0 lets this grid item shrink below its content's intrinsic
+       width — without it, .trust-badges forces .hero-content wider than the
+       viewport on narrow screens and the overflow gets silently clipped */
+    .hero-content { color: #fff; min-width: 0; }
+    .hero-badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
     .hero-eyebrow {
       display: inline-flex;
       align-items: center;
@@ -355,12 +364,28 @@
       flex-wrap: wrap;
       word-break: break-word;
     }
+    /* Inside the badge row, the row itself owns the bottom spacing */
+    .hero-badges-row .hero-eyebrow { margin-bottom: 0; }
     .hero-eyebrow-dot {
       width: 7px; height: 7px;
       border-radius: 50%;
       background: #24bfa3;
       box-shadow: 0 0 0 3px rgba(36,191,163,0.3);
       animation: pulse 2s ease-in-out infinite;
+    }
+    .hero-eyebrow-accent {
+      background: rgba(240,165,0,0.16);
+      border-color: rgba(240,165,0,0.45);
+      color: #f6c667;
+      animation: eyebrowGlow 2.4s ease-in-out infinite;
+    }
+    .hero-eyebrow-accent .hero-eyebrow-dot {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(240,165,0,0.3);
+    }
+    @keyframes eyebrowGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(240,165,0,0); }
+      50% { box-shadow: 0 0 18px 2px rgba(240,165,0,0.4); }
     }
     @keyframes pulse {
       0%, 100% { box-shadow: 0 0 0 3px rgba(36,191,163,0.3); }
@@ -1233,31 +1258,18 @@
       .stat-item:nth-child(4) { border-right: none; }
     }
 
-    /* ── 1024px: tablet landscape ── */
+    /* ── 1024px: tablet landscape + hamburger breakpoint ──
+       Nav lives here (not 768px): the full desktop nav-links (5 links +
+       button) need ~595px and start clipping against the container's edge
+       anywhere below ~1024px, well above the old 768px cutoff. ── */
     @media (max-width: 1024px) {
       .section, .testimonials-section { padding: 80px 0; }
       .hero { padding: 100px 0 72px; }
       .hero-grid { grid-template-columns: 1fr 340px; gap: 36px; }
       .footer-top { grid-template-columns: 1.3fr 1fr 1fr; gap: 32px; }
       .contact-grid { grid-template-columns: 0.9fr 1.1fr; }
-    }
 
-    /* ── 900px: tablet portrait ── */
-    @media (max-width: 900px) {
-      .hero-grid { grid-template-columns: 1fr; }
-      .hero-panel { display: none; }
-      .hero { min-height: 88vh; padding: 96px 0 60px; }
-      .hours-wrap { grid-template-columns: 1fr; }
-      .booking-layout { grid-template-columns: 1fr; gap: 36px; }
-      .contact-grid { grid-template-columns: 1fr; }
-      .ba-grid { grid-template-columns: 1fr; gap: 20px; }
-      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
-      .map-frame, .map-frame iframe { min-height: 360px; }
-    }
-
-    /* ── 768px: hamburger breakpoint ── */
-    @media (max-width: 768px) {
-      /* Always opaque header on mobile — transparent nav doesn't work with a dropdown */
+      /* Always opaque header once the hamburger is active — transparent nav doesn't work with a dropdown */
       .site-header {
         background: rgba(255,255,255,0.97) !important;
         backdrop-filter: blur(20px);
@@ -1318,7 +1330,23 @@
       .nav-links a:not(.button):active { background: rgba(7,94,113,0.06); }
       .nav-links a.active { background: rgba(7,94,113,0.06); color: var(--primary); }
       .nav-links .button { width: 100%; margin-top: 6px; justify-content: center; min-height: 50px; }
+    }
 
+    /* ── 900px: tablet portrait ── */
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-panel { display: none; }
+      .hero { min-height: 88vh; padding: 96px 0 60px; }
+      .hours-wrap { grid-template-columns: 1fr; }
+      .booking-layout { grid-template-columns: 1fr; gap: 36px; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .ba-grid { grid-template-columns: 1fr; gap: 20px; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .map-frame, .map-frame iframe { min-height: 360px; }
+    }
+
+    /* ── 768px: mobile ── */
+    @media (max-width: 768px) {
       /* Stats */
       .stats-inner { grid-template-columns: repeat(2,1fr); margin-top: -20px; border-radius: var(--radius-lg); }
       .stat-item { padding: 22px 16px; }
@@ -1354,17 +1382,10 @@
       .hero-actions { flex-direction: column; gap: 10px; margin-bottom: 28px; }
       .hero-actions .button { width: 100%; min-height: 52px; justify-content: center; }
 
-      /* Trust badges — horizontal scroll strip */
-      .trust-badges {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 4px;
-        gap: 10px;
-      }
-      .trust-badges::-webkit-scrollbar { display: none; }
-      .trust-badge { flex-shrink: 0; padding: 10px 14px; }
+      /* Trust badges — wrap onto multiple lines instead of a scroll strip,
+         so every badge stays fully visible without needing a scroll hint */
+      .trust-badges { gap: 10px; }
+      .trust-badge { padding: 10px 14px; }
 
       /* Stats */
       .stats-section { padding-bottom: 48px; }
@@ -1392,6 +1413,8 @@
 
       /* Booking */
       .booking-note .check-list { display: none; }
+      /* ...but keep it for the RCT specialist section — these points are the highlight, not filler */
+      #rct-specialist .check-list { display: grid; }
       .form-grid { grid-template-columns: 1fr; gap: 14px; }
       .form-card { padding: 20px 18px; }
       .form-step-label { font-size: 0.68rem; }
@@ -1510,9 +1533,15 @@
 
       <div class="container hero-grid">
         <div class="hero-content">
-          <div class="hero-eyebrow">
-            <span class="hero-eyebrow-dot"></span>
-            <span>Allen Ganj, Prayagraj</span>
+          <div class="hero-badges-row">
+            <div class="hero-eyebrow">
+              <span class="hero-eyebrow-dot"></span>
+              <span>Allen Ganj, Prayagraj</span>
+            </div>
+            <div class="hero-eyebrow hero-eyebrow-accent">
+              <span class="hero-eyebrow-dot"></span>
+              <span>RCT &amp; Re-RCT Specialist</span>
+            </div>
           </div>
           <h1 id="hero-title">
             Healthy smiles,<br>
@@ -1574,10 +1603,40 @@
           </div>
         </aside>
       </div>
-
+      
       <div class="scroll-indicator" aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7 7 7-7" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Scroll
+      </div>
+    </section>
+    <section class="section soft" id="rct-specialist">
+      <div class="container booking-layout">
+        <div class="booking-note" data-aos="fade-right">
+          <span class="eyebrow">Our Specialization</span>
+          <h2>RCT &amp; Re-RCT Specialist</h2>
+          <p>Root canal treatment (RCT) is one of the most technique-sensitive procedures in dentistry — and it's the one we've spent over 14+ years perfecting. Beyond routine root canals, Dr. Vaishnavi specializes in <strong>Re-RCT (root canal retreatment)</strong> for teeth where a previous root canal has failed, leaving patients with lingering pain, swelling or infection.</p>
+          <p>Using rotary endodontic instruments, detailed diagnostic imaging and a magnification-assisted approach, we pinpoint exactly why a tooth is still troubling you and retreat it with precision — giving it a genuine second chance instead of moving straight to extraction.</p>
+          <div class="check-list">
+            <span><span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Painless RCT with modern rotary technique</span>
+            <span><span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Expert Re-RCT for failed or reinfected root canals</span>
+            <span><span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Single-visit RCT for eligible cases</span>
+            <span><span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Focused on saving your natural tooth, not extracting it</span>
+          </div>
+          <a class="button" href="#appointment" style="margin-top:28px;">Book a Root Canal Consultation</a>
+        </div>
+
+        <div class="hours-card" data-aos="fade-left" data-aos-delay="100">
+          <div class="hours-card-content">
+            <span class="eyebrow">Why It Matters</span>
+            <h2>Specialist-led endodontic care</h2>
+            <p>Not every root canal needs a specialist — but every failed one does. Here's what specialist-led RCT &amp; Re-RCT looks like at our clinic.</p>
+            <div class="mini-hours">
+              <div class="mini-hours-row"><span>Root Canal Success Rate</span><strong>98%</strong></div>
+              <div class="mini-hours-row"><span>Re-RCT Cases Treated</span><strong>500+</strong></div>
+              <div class="mini-hours-row"><span>Typical Visits Required</span><strong>1–2</strong></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1669,6 +1728,8 @@
         </div>
       </div>
     </section>
+
+    <!-- ══ RCT & RE-RCT SPECIALIST ══ -->
 
     <!-- Wave divider -->
     <div class="wave-top" style="margin-bottom:-2px;">
